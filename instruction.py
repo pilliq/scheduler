@@ -14,7 +14,7 @@ class Instruction():
         self.line         = line
         self.op           = parts[0]
         self.latency      = latency[self.op]
-        self.deps         = {'true':[], 'anti':[]}
+        self.deps         = {'true':set([]), 'anti':set([])}
         self.args         = []
         self.dest         = []
 
