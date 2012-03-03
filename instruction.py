@@ -15,6 +15,7 @@ class Instruction():
         self.op           = parts[0]
         self.latency      = latency[self.op]
         self.deps         = {'true':set([]), 'anti':set([])}
+        self.priority     = 0
         self.args         = []
         self.dest         = []
 
