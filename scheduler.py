@@ -22,7 +22,7 @@ def special(instruction):
     """
     Returns True if instruction cannot have dependencies, else returns False
     """
-    if instruction.op == 'nop' or instruction.op == 'output':
+    if instruction.op == 'nop':
         return True
     else:
         return False
@@ -35,16 +35,15 @@ def select_regs(dep_type, instruction):
     """
     regs = set([])
     if dep_type == 'true':
-        # If a mem write op, add regs to right of '=>' since they are read 
-        # from and not written to
-        if instruction.is_mem_write():
-            [regs.add(x) for x in instruction.dest if Register.is_reg(x)]
-        [regs.add(y) for y in instruction.args if Register.is_reg(y)]
+        # add rmem when instruction reads from memory
+        if instruction.is_mem_read():
+            regs.add('rmem')
+        else:
+            [regs.add(y) for y in instruction.args if Register.is_reg(y)]
     elif dep_type == 'anti':
-        # dependent if reg appears in dest. not dependendent if instruction
-        # is a mem write operation since regs in dest are not written to
+        # add rmem when instruction write to memory
         if instruction.is_mem_write():
-            pass
+            regs.add('rmem')
         else:
             [regs.add(x) for x in instruction.dest if Register.is_reg(x)]
 
@@ -80,8 +79,7 @@ def find_true(instruction, program):
     deps = set([])
     for reg in select_regs('true', instruction):
         for op in reversed(program[:instruction.line]):
-            #dependent if reg appears in dest, and the instruction doesn't write to mem
-            if reg in op.dest and not op.is_mem_write(): 
+            if dependent('true', reg, op):
                 deps.add(op)
                 break
     return deps
@@ -96,13 +94,9 @@ def find_anti(instruction, program):
     deps = set([])
     for reg in select_regs('anti', instruction):
         for op in reversed(program[:instruction.line]):
-            if reg in op.args:
+            if dependent('anti', reg, op):
                 deps.add(op)
                 break
-            elif op.is_mem_write():
-                if reg in op.dest:
-                    deps.add(op)
-                    break
     return deps
 
 def build_dependencies(program):
