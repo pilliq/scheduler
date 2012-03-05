@@ -24,8 +24,7 @@ def special(instruction):
     """
     if instruction.op == 'nop':
         return True
-    else:
-        return False
+    return False
 
 def select_regs(dep_type, instruction):
     """
@@ -38,15 +37,15 @@ def select_regs(dep_type, instruction):
         # add rmem when instruction reads from memory
         if instruction.is_mem_read():
             regs.add('rmem')
-        else:
-            [regs.add(y) for y in instruction.args if Register.is_reg(y)]
+        [regs.add(y) for y in instruction.args if Register.is_reg(y)]
+        # also add registers to right of '=>' since they are read from
+        [regs.add(y) for y in instruction.dest if Register.is_reg(y)]
     elif dep_type == 'anti':
         # add rmem when instruction write to memory
         if instruction.is_mem_write():
             regs.add('rmem')
         else:
             [regs.add(x) for x in instruction.dest if Register.is_reg(x)]
-
     return regs
 
 def dependent(dep_type, reg, instruction):
@@ -107,17 +106,44 @@ def build_dependencies(program):
     for instruction in reversed(program):
         if special(instruction):
             continue
-        instruction.deps['true'] = find_true(instruction, program)
+        true_deps = find_true(instruction, program)
+        anti_deps = find_anti(instruction, program)
+        instruction.deps['true'] = true_deps
         # only add anti-deps that are not satisfied by true deps
-        instruction.deps['anti'] = find_anti(instruction, program).difference(instruction.deps['true'])
+        instruction.deps['anti'] = anti_deps.difference(true_deps)
 
-def choose_ready(program):
+        # add this instruction to the successor set of all dependencies
+        for dep in true_deps.union(anti_deps):
+            dep.successors.add(instruction)
+
+def choose_ready(ready_set):
     """
     Helper function to choose next instruction to execute
     """
-    i = max(program, key=Instruction.get_priority())
-    program.remove(i)
-    return i
+    max_priority = 0
+    instruction = None
+    for op in ready_set:
+        print("op.schedule: "+str(op.schedule))
+        if op.schedule == 0:
+            if op.priority > max_priority:
+                max_priority = op.priority
+                instruction = op
+    print("ready before remove: "+str([str(x) for x in ready_set]))
+    ready_set.remove(instruction)
+    print("ready after remove: "+str([str(x) for x in ready_set]))
+    return instruction
+
+def is_ready(op):
+    """
+    Returns True if op's dependencies have been executed, and op has not been scheduled yet,
+    else returns False
+    """
+    if op.schedule != 0:
+        return False
+    for dep in op.get_all_deps():
+        if dep.schedule <= 0:
+            return False
+    return True
 
 def schedule(program):
     """
@@ -126,18 +152,33 @@ def schedule(program):
     algorithm. Returns a list of scheduled instructions
     """
     cycle  = 1
-    ready  = set([x for x in program if x.deps['anti'].union(x.deps['true']) == set([])]) #leaves of the graph
+    ready  = set([x for x in program if x.get_all_deps() == set([])]) #leaves of the graph
     active = set([])
     
     while ready.union(active) != set([]):
+        print("ready: "+ str([str(x) for x in ready]))
+        print("active: "+ str([str(x) for x in active]))
         if ready != set([]):
-            op = choose_ready(ready)
-            
+            i = choose_ready(ready)
+            i.schedule = cycle
+            active.add(i)
+
+        cycle = cycle + 1
+
+        for op in active.copy(): # use copy() to allow change of active at runtime
+            print(str(op.schedule + op.latency) + ' ' + str(cycle))
+            if op.schedule + op.latency <= cycle:
+                active.remove(op)
+                for dep in op.successors:
+                    if is_ready(dep):
+                        ready.add(dep)
+
 if __name__ == '__main__':
     program  = load(sys.stdin)
     build_dependencies(program)
-    #heuristic.llwp(program)
-    heuristic.highest_latency(program)
+    heuristic.llwp(program)
+    #heuristic.highest_latency(program)
+    schedule(program)
     for i in program:
         print str(i)
         sys.stdout.write("\ttrue: ")
@@ -147,3 +188,7 @@ if __name__ == '__main__':
         print("\n")
     for i in program:
         print(str(i)+ ' ' + str(i.priority))
+
+    print 
+    for i in sorted(program, key=Instruction.get_schedule):
+        print(str(i) + ' ' + str(i.schedule))
