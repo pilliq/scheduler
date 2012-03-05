@@ -24,14 +24,16 @@ class Instruction(object):
         """
         Given a string instruction and a line number, parses and creates a new Instruction object
         """
-        parts             = [x.strip(',') for x in instruction.split()]
-        self.line         = line
-        self.op           = parts[0]
-        self.latency      = latencies[self.op]
-        self.deps         = {'true':set([]), 'anti':set([])}
-        self.priority     = 0
-        self.args         = []
-        self.dest         = []
+        parts           = [x.strip(',') for x in instruction.split()]
+        self.line       = line
+        self.op         = parts[0]
+        self.latency    = latencies[self.op]
+        self.deps       = {'true':set([]), 'anti':set([])}
+        self.successors = set([])
+        self.priority   = 0
+        self.schedule   = 0
+        self.args       = []
+        self.dest       = []
 
         if self.op == 'nop': 
             return
@@ -56,6 +58,12 @@ class Instruction(object):
         s = s + ', '.join(self.dest)
         return s
 
+    def get_all_deps(self):
+        """
+        Returns a set of both true and anti dependencies
+        """
+        return self.deps['true'].union(self.deps['anti'])
+
     def is_mem_write(self):
         """
         Returns True if instruction writes to memory, else returns False
@@ -68,10 +76,16 @@ class Instruction(object):
         """
         Returns True if instruction reads from memory, else returns False
         """
-        if self.op in set(['load','loadAI','loadAO','output']):
+        if self.op in set(['load', 'loadAI', 'loadAO', 'output']):
             return True
         return False
     
+    # static methods used for sort functions
+
     @staticmethod
     def get_priority(instruction):
         return instruction.priority
+
+    @staticmethod
+    def get_schedule(instruction):
+        return instruction.schedule
