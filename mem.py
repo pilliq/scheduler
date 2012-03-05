@@ -1,11 +1,3 @@
-#!/usr/bin/env python
-
-class Memory():
-    """
-    Represents the state of main memory in for a program
-    """
-    pass
-
 class Register():
     """
     Represents current the registers of a program 
