@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import sys
+from optparse import OptionParser
+
 import heuristic
 from mem import Register, Memory
 from instruction import Instruction
@@ -123,14 +125,11 @@ def choose_ready(ready_set):
     max_priority = 0
     instruction = None
     for op in ready_set:
-        print("op.schedule: "+str(op.schedule))
         if op.schedule == 0:
             if op.priority > max_priority:
                 max_priority = op.priority
                 instruction = op
-    print("ready before remove: "+str([str(x) for x in ready_set]))
     ready_set.remove(instruction)
-    print("ready after remove: "+str([str(x) for x in ready_set]))
     return instruction
 
 def is_ready(op):
@@ -156,8 +155,6 @@ def schedule(program):
     active = set([])
     
     while ready.union(active) != set([]):
-        print("ready: "+ str([str(x) for x in ready]))
-        print("active: "+ str([str(x) for x in active]))
         if ready != set([]):
             i = choose_ready(ready)
             i.schedule = cycle
@@ -166,7 +163,6 @@ def schedule(program):
         cycle = cycle + 1
 
         for op in active.copy(): # use copy() to allow change of active at runtime
-            print(str(op.schedule + op.latency) + ' ' + str(cycle))
             if op.schedule + op.latency <= cycle:
                 active.remove(op)
                 for dep in op.successors:
@@ -174,21 +170,24 @@ def schedule(program):
                         ready.add(dep)
 
 if __name__ == '__main__':
-    program  = load(sys.stdin)
-    build_dependencies(program)
-    heuristic.llwp(program)
-    #heuristic.highest_latency(program)
-    schedule(program)
-    for i in program:
-        print str(i)
-        sys.stdout.write("\ttrue: ")
-        print([str(x) for x in i.deps['true']])
-        sys.stdout.write("\tanti: ")
-        print([str(x) for x in i.deps['anti']])
-        print("\n")
-    for i in program:
-        print(str(i)+ ' ' + str(i.priority))
+    parser = OptionParser()
+    parser.add_option("-a", action="store_true", dest="llwp", default=False)
+    parser.add_option("-b", action="store_true", dest="high", default=False)
+    parser.add_option("-c", action="store_true", dest="random", default=False)
+    (options, args) = parser.parse_args()
 
-    print 
+    program = load(sys.stdin)
+    build_dependencies(program)
+
+    if options.llwp:
+        heuristic.llwp(program)
+    elif options.high:
+        heuristic.highest_latency(program)
+    elif options.random:
+        heuristic.rand(program)
+    else:
+        heuristic.llwp(program)
+
+    schedule(program)
     for i in sorted(program, key=Instruction.get_schedule):
-        print(str(i) + ' ' + str(i.schedule))
+        print(i)
