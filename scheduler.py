@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-from graph import Node
+import heuristic
 from mem import Register, Memory
 from instruction import Instruction
 
@@ -50,6 +50,26 @@ def select_regs(dep_type, instruction):
 
     return regs
 
+def dependent(dep_type, reg, instruction):
+    """
+    Checks if reg is dependent on completion of op based on
+    dependency type. Returns True if dependent, else returns False
+    """
+    if dep_type == 'true':
+        if reg in instruction.dest:
+            return True
+        elif reg == 'rmem':
+            if instruction.is_mem_write():
+                return True
+    elif dep_type == 'anti':
+        if reg in instruction.args:
+            return True
+        elif reg == 'rmem':
+            if instruction.is_mem_read():
+                return True
+    return False
+
+
 def find_true(instruction, program):
     """
     Searches for true dependencies for instruction in program. Returns
@@ -59,10 +79,10 @@ def find_true(instruction, program):
     """
     deps = set([])
     for reg in select_regs('true', instruction):
-        for inst in reversed(program[:instruction.line]):
+        for op in reversed(program[:instruction.line]):
             #dependent if reg appears in dest, and the instruction doesn't write to mem
-            if reg in inst.dest and not inst.is_mem_write(): 
-                deps.add(inst)
+            if reg in op.dest and not op.is_mem_write(): 
+                deps.add(op)
                 break
     return deps
 
@@ -75,13 +95,13 @@ def find_anti(instruction, program):
     """
     deps = set([])
     for reg in select_regs('anti', instruction):
-        for inst in reversed(program[:instruction.line]):
-            if reg in inst.args:
-                deps.add(inst)
+        for op in reversed(program[:instruction.line]):
+            if reg in op.args:
+                deps.add(op)
                 break
-            elif inst.is_mem_write():
-                if reg in inst.dest:
-                    deps.add(inst)
+            elif op.is_mem_write():
+                if reg in op.dest:
+                    deps.add(op)
                     break
     return deps
 
@@ -97,9 +117,33 @@ def build_dependencies(program):
         # only add anti-deps that are not satisfied by true deps
         instruction.deps['anti'] = find_anti(instruction, program).difference(instruction.deps['true'])
 
+def choose_ready(program):
+    """
+    Helper function to choose next instruction to execute
+    """
+    i = max(program, key=Instruction.get_priority())
+    program.remove(i)
+    return i
+
+def schedule(program):
+    """
+    Given a program that contains prioritized instructions and dependencies,
+    schedules instructions according to the Local Forward List Scheduling
+    algorithm. Returns a list of scheduled instructions
+    """
+    cycle  = 1
+    ready  = set([x for x in program if x.deps['anti'].union(x.deps['true']) == set([])]) #leaves of the graph
+    active = set([])
+    
+    while ready.union(active) != set([]):
+        if ready != set([]):
+            op = choose_ready(ready)
+            
 if __name__ == '__main__':
     program  = load(sys.stdin)
     build_dependencies(program)
+    #heuristic.llwp(program)
+    heuristic.highest_latency(program)
     for i in program:
         print str(i)
         sys.stdout.write("\ttrue: ")
@@ -107,3 +151,5 @@ if __name__ == '__main__':
         sys.stdout.write("\tanti: ")
         print([str(x) for x in i.deps['anti']])
         print("\n")
+    for i in program:
+        print(str(i)+ ' ' + str(i.priority))
