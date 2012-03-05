@@ -1,3 +1,5 @@
+import random
+
 def llwp(program, weight=0):
     """
     Longest latency-weighted path heuristic. Assigns higher priority to 
@@ -26,9 +28,8 @@ def highest_latency(program):
     Recursive breadth traversal of dependence graph.
     """
     for instruction in reversed(program):
-        seq = 0
         if instruction.priority == 0:
-            seq = _highest_latency_h(instruction, seq=seq)
+            _highest_latency_h(instruction)
 
 def _highest_latency_h(instruction, seq=0, choices=None):
     """
@@ -40,7 +41,16 @@ def _highest_latency_h(instruction, seq=0, choices=None):
     if choices:
         deps = deps.union(choices)
     if not deps:
-        return priority
+        return
     d = max(deps)
     deps.remove(d)  
     _highest_latency_h(d, priority, deps)
+
+def rand(program):
+    """
+    Assigns random priority to instructions
+    """
+    random.seed(None) #seed with current system time
+    num_ops = len(program)
+    for instruction in program:
+        instruction.priority = random.randint(1,num_ops)
