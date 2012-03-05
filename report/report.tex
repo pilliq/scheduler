@@ -1,0 +1,25 @@
+\documentclass{article}
+\title{A Local Forward List Instruction Scheduler}
+\date{\today}
+\author{Phillip Quiza}
+
+\begin{document}
+\maketitle
+
+\section{Design}
+\subsection{Overview}
+The scheduler is programmed in Python and follows a partially object-oriented design. An instruction is represented with an object that holds the instruction, dependencies, successors, priority, latency, and scheduled cycle. Heuristics and scheduling were implemented in functions. These functions modified the state of each instruction object, and added filled in object attributes. At first registers and memory were represented with an object for each. The motivation for this was to model the memory so that memory dependencies could be discovered and accounted for when scheduling. The final implementation of the scheduler does not directly resolve memory dependencies, and therefore does not need an object to represent registers or memory. What remains from these objects is a Register class with a single static method for determing whether a string represents a register or not.\\
+
+Once an ILOC program is loaded into the scheduler, the dependencies of the program are found, and each instruction is assigned a set of dependencies. Then a heurisitic for prioritizing the operations is applied on the program, giving each instruction a priority. Finally the program is scheduled using the Forward List Scheduling algorithm with the chosen heuristic. This algorithm assigns a cycle for each instruction to execute. If there is a tie between two or more instructions for a cycle, the first instruction seen is chosen. 
+\subsection{Dependence Graph}
+The dependence graph of a program is built by observing the registers that each instruction reads and writes to. Since all dependencies are based on registers and not memory locations, all operations that invovle memory locations are internally converted to use a special register called "rmem". By replacing all memory locations with this register, true and antidependencies on memory instructions can be discovered without resolving the actual location in memory. The disadvantage to this method is that there will be some fake dependencies that appear 
+
+\section{Heuristics}
+\subsection{Longest latency-weighted path}
+\subsection{Highest latency}
+\subsection{Random}
+\subsubsection{Motivation}
+
+\section{Benchmarks}
+
+\end{document}
