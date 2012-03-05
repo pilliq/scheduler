@@ -4,7 +4,7 @@ import sys
 from optparse import OptionParser
 
 import heuristic
-from mem import Register, Memory
+from mem import Register
 from instruction import Instruction
 
 def load(f):
@@ -171,9 +171,9 @@ def schedule(program):
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option("-a", action="store_true", dest="llwp", default=False)
-    parser.add_option("-b", action="store_true", dest="high", default=False)
-    parser.add_option("-c", action="store_true", dest="random", default=False)
+    parser.add_option("-a", action="store_true", dest="llwp", help="LLWP heuristic", default=False)
+    parser.add_option("-b", action="store_true", dest="high", help="Highest Latency heuristic", default=False)
+    parser.add_option("-c", action="store_true", dest="random", help="Random heuristic", default=False)
     (options, args) = parser.parse_args()
 
     program = load(sys.stdin)
