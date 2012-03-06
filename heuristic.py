@@ -1,4 +1,5 @@
 import random
+from instruction import Instruction
 
 def llwp(program, weight=0):
     """
@@ -42,7 +43,7 @@ def _highest_latency_h(instruction, seq=0, choices=None):
         deps = deps.union(choices)
     if not deps:
         return
-    d = max(deps)
+    d = max(deps, key=Instruction.get_latency)
     deps.remove(d)  
     _highest_latency_h(d, priority, deps)
 
