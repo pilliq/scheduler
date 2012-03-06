@@ -89,3 +89,7 @@ class Instruction(object):
     @staticmethod
     def get_schedule(instruction):
         return instruction.schedule
+
+    @staticmethod
+    def get_latency(instruction):
+        return instruction.latency
