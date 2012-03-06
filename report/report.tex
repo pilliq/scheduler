@@ -1,4 +1,5 @@
 \documentclass{article}
+\usepackage{array}
 \title{A Local Forward List Instruction Scheduler}
 \date{\today}
 \author{Phillip Quiza}
@@ -11,15 +12,121 @@
 The scheduler is programmed in Python and follows a partially object-oriented design. An instruction is represented with an object that holds the instruction, dependencies, successors, priority, latency, and scheduled cycle. Heuristics and scheduling were implemented in functions. These functions modified the state of each instruction object, and added filled in object attributes. At first registers and memory were represented with an object for each. The motivation for this was to model the memory so that memory dependencies could be discovered and accounted for when scheduling. The final implementation of the scheduler does not directly resolve memory dependencies, and therefore does not need an object to represent registers or memory. What remains from these objects is a Register class with a single static method for determing whether a string represents a register or not.\\
 
 Once an ILOC program is loaded into the scheduler, the dependencies of the program are found, and each instruction is assigned a set of dependencies. Then a heurisitic for prioritizing the operations is applied on the program, giving each instruction a priority. Finally the program is scheduled using the Forward List Scheduling algorithm with the chosen heuristic. This algorithm assigns a cycle for each instruction to execute. If there is a tie between two or more instructions for a cycle, the first instruction seen is chosen. 
+
 \subsection{Dependence Graph}
-The dependence graph of a program is built by observing the registers that each instruction reads and writes to. Since all dependencies are based on registers and not memory locations, all operations that invovle memory locations are internally converted to use a special register called "rmem". By replacing all memory locations with this register, true and antidependencies on memory instructions can be discovered without resolving the actual location in memory. The disadvantage to this method is that there will be some fake dependencies that appear 
+The dependence graph of a program is built by observing the registers that each instruction reads and writes to. Since all dependencies are based on registers and not memory locations, all operations that invovle memory locations are internally converted to use a special register called "rmem". By replacing all memory locations with this register, true and antidependencies on memory instructions can be discovered without resolving the actual location in memory. The disadvantage to this method is that there will be some fake dependencies that appear when certain memory instructions do read/write to the same locations in memory.
 
 \section{Heuristics}
-\subsection{Longest latency-weighted path}
-\subsection{Highest latency}
+\subsection{Longest latency-weighted path (LLWP)}
+\subsubsection{Overview}
+The LLWP heuristic is implemented using a depth first traversal of the dependency graph of the a program. Traversal starts at the last instruction in the program. The last instruction's priority is set to the weight (which is 0 for the last instruction) plus the latency of the instruction. Then each dependency (anti and true) of the current instruction is checked if it has been visited (i.e. if the dependency's priority has been set). If not, LLWP would be recursively called on that dependency with the priority of the current instruction passed as the weight. Below is the pseudo-code of the LLWP heuristic:
+\begin{verbatim}
+define llwp(program):
+    for instruction in reversed(program):
+        if priority(instruction) not set:
+            llwp_helper(instruction, 0)
+    
+define llwp_helper(instruction, weight):
+    priority(instruction) <- latency(instruction) + weight
+    for dep in dependencies(instruction):
+        if priority(dep) not set:
+            llwp_helper(dep, priority(instruction))
+\end{verbatim}
+\subsection{Highest latency (HL)}
+\subsubsection{Overview}
+The HL heuristic is implemented using a breadth first traversal of the dependency graph of a program. 
 \subsection{Random}
+\subsubsection{Overview}
+The random heuristic works by assigning each instruction a random priority. The random seed is taken from the current system time.
 \subsubsection{Motivation}
+The motivation for a random heuristic originates from the way memory dependencies are handled. Since this scheduler may create fake dependencies between instructions that interact with memory, the hypothesis was that this scheduler is rather constrained and the heuristics will not create too much difference in the program's running time. If a random heuristic could come close to LLWP or HL, then this hypothesis would be at least partially confirmed.
 
 \section{Benchmarks}
+\subsection{LLWP}
+\begin{center}
+    \begin{tabular} {|c | c | c|}
+        \hline
+        Benchmark & Unscheduled (cycles)  & Scheduled (cycles) \\ \hline \hline
+        01 & 71 & 73 \\ \hline
+        02 & 120 & 119 \\ \hline
+        03 & 7 & 7 \\ \hline
+        04 & 106 & 79 \\ \hline
+        05 & 73 & 68 \\ \hline
+        06 & 237 & 206 \\ \hline
+        07 & 89 & 75 \\ \hline
+        08 & 120 & 98 \\ \hline
+        09 & 165 & 117 \\ \hline
+        10 & 37 & 27 \\ \hline
+        11 & 45 & 35 \\ \hline
+        12 & 55 & 53 \\ \hline
+        13 & 53 & 54 \\ \hline
+        14 & 53 & 51 \\ \hline
+        15 & 73 & 73 \\ \hline
+        16 & 8 & 8 \\ \hline
+        17 & 71 & 71 \\ \hline
+        18 & 45 & 35 \\ \hline
+        19 & 120 & 98 \\ \hline
+        20 & 106 & 82 \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{HL}
+\begin{center}
+    \begin{tabular} {|c | c | c|}
+        \hline
+        Benchmark & Unscheduled (cycles)  & Scheduled (cycles) \\ \hline \hline
+        01 & 71 & 73 \\ \hline
+        02 & 120 & 119 \\ \hline
+        03 & 7 & 7 \\ \hline
+        04 & 106 & 79 \\ \hline
+        05 & 73 & 68 \\ \hline
+        06 & 237 & 208 \\ \hline
+        07 & 89 & 75 \\ \hline
+        08 & 120 & 98 \\ \hline
+        09 & 165 & 117 \\ \hline
+        10 & 37 & 27 \\ \hline
+        11 & 45 & 35 \\ \hline
+        12 & 55 & 51 \\ \hline
+        13 & 53 & 51 \\ \hline
+        14 & 53 & 51 \\ \hline
+        15 & 73 & 68 \\ \hline
+        16 & 8 & 8 \\ \hline
+        17 & 71 & 72 \\ \hline
+        18 & 45 & 35 \\ \hline
+        19 & 120 & 98 \\ \hline
+        20 & 106 & 79 \\ 
+        \hline
+    \end{tabular}
+\end{center}
+
+\subsection{Random}
+\begin{center}
+    \begin{tabular} {|c | c | c|}
+        \hline
+        Benchmark & Unscheduled (cycles)  & Scheduled (cycles) \\ \hline \hline
+        01 & 71 & 73 \\ \hline
+        02 & 120 & 120 \\ \hline
+        03 & 7 & 7 \\ \hline
+        04 & 106 & 79 \\ \hline
+        05 & 73 & 68 \\ \hline
+        06 & 237 & 206 \\ \hline
+        07 & 89 & 75 \\ \hline
+        08 & 120 & 98 \\ \hline
+        09 & 165 & 117 \\ \hline
+        10 & 37 & 27 \\ \hline
+        11 & 45 & 35 \\ \hline
+        12 & 55 & 53 \\ \hline
+        13 & 53 & 54 \\ \hline
+        14 & 53 & 51 \\ \hline
+        15 & 73 & 73 \\ \hline
+        16 & 8 & 8 \\ \hline
+        17 & 71 & 71 \\ \hline
+        18 & 45 & 35 \\ \hline
+        19 & 120 & 98 \\ \hline
+        20 & 106 & 82 \\ 
+        \hline
+    \end{tabular}
+\end{center}
 
 \end{document}
