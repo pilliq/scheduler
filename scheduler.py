@@ -69,7 +69,6 @@ def dependent(dep_type, reg, instruction):
                 return True
     return False
 
-
 def find_true(instruction, program):
     """
     Searches for true dependencies for instruction in program. Returns
@@ -169,6 +168,21 @@ def schedule(program):
                     if is_ready(dep):
                         ready.add(dep)
 
+def graphviz(program, f):
+    """
+    Generates a graphviz file f
+    """
+    fp = open(f,"w")
+    labels = [(str(x), "n"+str(x.line)) for x in program]
+    fp.write("digraph {\n")
+    for l in labels:
+        fp.write(str(l[1]) + ' [ label = \"'+l[0]+'\" ];\n')
+    for op in program: 
+        for dep in op.get_all_deps():
+            fp.write("n"+str(dep.line) + ' -> ' + "n"+str(op.line) + ';\n')
+    fp.write("}")
+    fp.close()
+
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-a", action="store_true", dest="llwp", help="LLWP heuristic", default=False)
@@ -191,3 +205,4 @@ if __name__ == '__main__':
     schedule(program)
     for i in sorted(program, key=Instruction.get_schedule):
         print(i)
+    #graphviz(program, "graph.out")
