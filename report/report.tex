@@ -34,10 +34,11 @@ define llwp_helper(instruction, weight):
 \end{verbatim}
 \subsection{Highest latency (HL)}
 \subsubsection{Overview}
-The HL heuristic is implemented using a breadth first traversal of the dependency graph of a program. 
+The HL heuristic is implemented using a breadth first traversal of the dependency graph of a program. Traversal starts with the last instruction of the program and works its way up using the dependencies of all the instructions it has visited thus far. The algorithm chooses the dependency with the greatest latency, and uses that dependency as the instruction to prioritize in the next recursive call. The priority assigned to the instruction is equal to the order in which the instruction is visited, i.e. the first instruction visited gets priority 1, the second instruction gets priority 2, and so on. 
+
 \subsection{Random}
 \subsubsection{Overview}
-The random heuristic works by assigning each instruction a random priority. The random seed is taken from the current system time.
+The random heuristic works by assigning each instruction a random priority from 1 to n where n is the number of instructions in the program. The random seed is taken from the current system time.
 \subsubsection{Motivation}
 The motivation for a random heuristic originates from the way memory dependencies are handled. Since this scheduler may create fake dependencies between instructions that interact with memory, the hypothesis was that this scheduler is rather constrained and the heuristics will not create too much difference in the program's running time. If a random heuristic could come close to LLWP or HL, then this hypothesis would be at least partially confirmed.
 
@@ -105,28 +106,31 @@ The motivation for a random heuristic originates from the way memory dependencie
     \begin{tabular} {|c | c | c|}
         \hline
         Benchmark & Unscheduled (cycles)  & Scheduled (cycles) \\ \hline \hline
-        01 & 71 & 73 \\ \hline
-        02 & 120 & 120 \\ \hline
+        01 & 71 & 76 \\ \hline
+        02 & 120 & 117 \\ \hline
         03 & 7 & 7 \\ \hline
-        04 & 106 & 79 \\ \hline
-        05 & 73 & 68 \\ \hline
-        06 & 237 & 206 \\ \hline
-        07 & 89 & 75 \\ \hline
-        08 & 120 & 98 \\ \hline
-        09 & 165 & 117 \\ \hline
-        10 & 37 & 27 \\ \hline
-        11 & 45 & 35 \\ \hline
-        12 & 55 & 53 \\ \hline
-        13 & 53 & 54 \\ \hline
-        14 & 53 & 51 \\ \hline
-        15 & 73 & 73 \\ \hline
+        04 & 106 & 91 \\ \hline
+        05 & 73 & 76 \\ \hline
+        06 & 237 & 211 \\ \hline
+        07 & 89 & 83 \\ \hline
+        08 & 120 & 100 \\ \hline
+        09 & 165 & 139 \\ \hline
+        10 & 37 & 31 \\ \hline
+        11 & 45 & 45 \\ \hline
+        12 & 55 & 55 \\ \hline
+        13 & 53 & 55 \\ \hline
+        14 & 53 & 60 \\ \hline
+        15 & 73 & 75 \\ \hline
         16 & 8 & 8 \\ \hline
-        17 & 71 & 71 \\ \hline
-        18 & 45 & 35 \\ \hline
-        19 & 120 & 98 \\ \hline
-        20 & 106 & 82 \\ 
+        17 & 71 & 74 \\ \hline
+        18 & 45 & 40 \\ \hline
+        19 & 120 & 107 \\ \hline
+        20 & 106 & 90 \\ 
         \hline
     \end{tabular}
 \end{center}
+
+\section{Conclusion}
+The only case where LLWP exceeded HL was in benchmark06. The rest of the cases either had the same running time as HL or worse, but only by a few cycles. Random had a fluctuating running time. In some cases it would run better than any of the other two heuristics, and in others it ran much worse. Yet, most of the running times for random were in about the same range as the other heuristics. 
 
 \end{document}
