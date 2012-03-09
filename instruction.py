@@ -1,20 +1,4 @@
-latencies = {
-        'nop': 1, 
-        'addI': 1, 
-        'add': 1, 
-        'subI': 1, 
-        'sub': 1, 
-        'mult': 3, 
-        'div': 3, 
-        'load': 5, 
-        'loadI': 1, 
-        'loadAI': 5, 
-        'loadAO': 5, 
-        'store': 5, 
-        'storeAO': 5, 
-        'storeAI': 5, 
-        'output': 1
-        }
+latencies = {'nop': 1, 'addI': 1, 'add': 1, 'subI': 1, 'sub': 1, 'mult': 3, 'div': 3, 'load': 5, 'loadI': 1, 'loadAI': 5, 'loadAO': 5, 'store': 5, 'storeAO': 5, 'storeAI': 5, 'output': 1}
 
 class Instruction(object):
     """
