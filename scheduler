@@ -183,7 +183,7 @@ def output(program, dest):
 
 def graphviz(program, f):
     """
-    Generates a GraphViz f for the dependency graph of the program
+    Generates a GraphViz dot file f for the dependency graph of the program
     """
     fp = open(f,"w")
     labels = [(str(x), "n"+str(x.line)) for x in program]
