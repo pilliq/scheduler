@@ -1,8 +1,7 @@
 class Register(object):
     """
-    Represents current the registers of a program 
+    Register methods
     """
-
     @staticmethod
     def is_reg(s):
         """
