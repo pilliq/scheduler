@@ -1,4 +1,4 @@
-class Register():
+class Register(object):
     """
     Represents current the registers of a program 
     """
