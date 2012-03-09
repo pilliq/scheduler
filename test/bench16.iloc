@@ -1,0 +1,8 @@
+	nop
+	nop
+	nop
+	loadI 1024 => r0
+	nop
+	nop
+	nop
+        loadI 42 => r1

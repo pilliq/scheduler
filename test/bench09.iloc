@@ -1,0 +1,59 @@
+ 	 loadI 1024 	=> r0 
+ 	 loadI 3 	=> r1 
+ 	 storeAI r1 	=> r0, 0 
+ 	 loadI 4 	=> r3 
+ 	 storeAI r3 	=> r0, 4 
+ 	 loadAI r0, 4 	=> r5 
+ 	 loadAI r0, 4 	=> r6 
+ 	 add r5, r6 	=> r7 
+ 	 storeAI r7 	=> r0, 4 
+ 	 loadI 5 	=> r9 
+ 	 storeAI r9 	=> r0, 8 
+ 	 loadAI r0, 8 	=> r11 
+ 	 loadAI r0, 8 	=> r12 
+ 	 add r11, r12 	=> r13 
+ 	 loadAI r0, 8 	=> r14 
+ 	 add r13, r14 	=> r15 
+ 	 storeAI r15 	=> r0, 8 
+ 	 loadI 6 	=> r17 
+ 	 storeAI r17 	=> r0, 12 
+ 	 loadAI r0, 12 	=> r19 
+ 	 loadAI r0, 12 	=> r20 
+ 	 add r19, r20 	=> r21 
+ 	 loadAI r0, 12 	=> r22 
+ 	 add r21, r22 	=> r23 
+ 	 loadAI r0, 12 	=> r24 
+ 	 add r23, r24 	=> r25 
+ 	 storeAI r25 	=> r0, 12 
+ 	 loadI 7 	=> r27 
+ 	 storeAI r27 	=> r0, 16 
+ 	 loadAI r0, 16 	=> r29 
+ 	 loadAI r0, 16 	=> r30 
+ 	 mult r29, r30 	=> r31 
+ 	 storeAI r31 	=> r0, 16 
+ 	 loadI 8 	=> r33 
+ 	 storeAI r33 	=> r0, 20 
+ 	 loadAI r0, 20 	=> r35 
+ 	 loadAI r0, 20 	=> r36 
+ 	 mult r35, r36 	=> r37 
+ 	 loadAI r0, 20 	=> r38 
+ 	 mult r37, r38 	=> r39 
+ 	 storeAI r39 	=> r0, 20 
+ 	 loadAI r0, 0 	=> r41 
+ 	 storeAI r41 	=> r0, 24 
+ 	 output 1048
+ 	 loadAI r0, 4 	=> r42 
+ 	 storeAI r42 	=> r0, 28 
+ 	 output 1052
+ 	 loadAI r0, 8 	=> r43 
+ 	 storeAI r43 	=> r0, 32 
+ 	 output 1056
+ 	 loadAI r0, 12 	=> r44 
+ 	 storeAI r44 	=> r0, 36 
+ 	 output 1060
+ 	 loadAI r0, 16 	=> r45 
+ 	 storeAI r45 	=> r0, 40 
+ 	 output 1064
+ 	 loadAI r0, 20 	=> r46 
+ 	 storeAI r46 	=> r0, 44 
+ 	 output 1068

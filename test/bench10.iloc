@@ -1,0 +1,16 @@
+ 	 loadI 1024 	=> r0 
+ 	 loadI 2 	=> r1 
+ 	 loadI 3 	=> r4 
+ 	 add r1, r4 	=> r5 
+ 	 storeAI r5 	=> r0, 4 
+ 	 loadI 5 	=> r1 
+ 	 mult r1, r1 	=> r11 
+ 	 storeAI r11 	=> r0, 8 
+ 	 storeAI r1 	=> r0, 12 
+ 	 output 1036
+ 	 loadAI r0, 4 	=> r14 
+ 	 storeAI r14 	=> r0, 16 
+ 	 output 1040
+ 	 loadAI r0, 8 	=> r15 
+ 	 storeAI r15 	=> r0, 20 
+ 	 output 1044

@@ -1,0 +1,32 @@
+ 	 loadI 1024 	=> r0 
+ 	 loadI 6 	=> r1 
+ 	 loadI 4 	=> r2 
+ 	 mult r1, r2 	=> r3 
+ 	 loadI 1 	=> r4 
+ 	 add r3, r4 	=> r5 
+ 	 storeAI r5 	=> r0, 16 
+ 	 output 1040
+ 	 loadI 5 	=> r6 
+ 	 loadI 2000 	=> r7 
+ 	 mult r6, r7 	=> r8 
+ 	 loadI 18 	=> r9 
+ 	 add r8, r9 	=> r10 
+ 	 storeAI r10 	=> r0, 20 
+ 	 output 1044
+ 	 loadI 1 	=> r11 
+ 	 storeAI r11 	=> r0, 0 
+ 	 loadI 1 	=> r13 
+ 	 loadAI r0, 0 	=> r14 
+ 	 add r13, r14 	=> r15 
+ 	 storeAI r15 	=> r0, 4 
+ 	 loadI 1 	=> r17 
+ 	 loadAI r0, 4 	=> r18 
+ 	 add r17, r18 	=> r19 
+ 	 storeAI r19 	=> r0, 8 
+ 	 loadI 1 	=> r21 
+ 	 loadAI r0, 8 	=> r22 
+ 	 add r21, r22 	=> r23 
+ 	 storeAI r23 	=> r0, 12 
+ 	 loadAI r0, 12 	=> r25 
+ 	 storeAI r25 	=> r0, 24 
+ 	 output 1048
